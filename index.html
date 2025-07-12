@@ -49,8 +49,8 @@
         .topbar {
             background-color: var(--topbar-bg);
             border-bottom: 1px solid var(--topbar-border);
-            padding: 0.7rem 0;
-            margin-bottom: 2rem;
+            padding: 0.4rem 0;
+            margin-bottom: 1.5rem;
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -64,8 +64,9 @@
 
         .topbar-title {
             margin: 0;
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             color: var(--text-color);
+            line-height: 1.2;
         }
 
         .theme-switch {
@@ -269,12 +270,15 @@
             .container {
                 padding: 1rem;
             }
+            .topbar .container {
+                padding: 0.75rem;
+            }
             .topbar {
-                padding: 0.5rem 0;
-                margin-bottom: 1.5rem;
+                padding: 0.3rem 0;
+                margin-bottom: 0.8rem;
             }
             .topbar-title {
-                font-size: 1.1rem;
+                font-size: 0.95rem;
             }
             .controls {
                 flex-direction: column;
@@ -370,7 +374,6 @@
         </div>
     </main>
     <footer class="container py-3 text-center">
-        <p>Free online tool for encoding and decoding text. Supports Base64, XML, and more formats.</p>
     </footer>
 
     <script src="libs/bootstrap-5.3.3-js-bootstrap.min.js"></script>
