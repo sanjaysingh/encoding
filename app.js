@@ -244,6 +244,29 @@ const encoders = {
             // Then replace numeric entities
             return decoded.replace(/&#(\d+);/g, (match, dec) => xmlEntities[match] || String.fromCharCode(dec));
         }
+    },
+    json: {
+        encode: (text) => {
+            // Escape as JSON string and strip the surrounding quotes
+            const escaped = JSON.stringify(String(text));
+            return escaped.substring(1, escaped.length - 1);
+        },
+        decode: (text) => {
+            const raw = String(text).trim();
+            // Try to interpret as an escaped JSON string first
+            try {
+                const candidate = (raw.startsWith('"') && raw.endsWith('"')) ? raw : `"${raw}"`;
+                return JSON.parse(candidate);
+            } catch (_) {
+                // If it's a full JSON (object/array/number/etc), pretty print it
+                try {
+                    const obj = JSON.parse(raw);
+                    return typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
+                } catch (error) {
+                    throw new Error('Invalid JSON encoded text');
+                }
+            }
+        }
     }
 };
 
