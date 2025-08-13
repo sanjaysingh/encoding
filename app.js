@@ -404,7 +404,7 @@ async function processInput() {
     }
 
     if (!input) {
-        outputText.value = 'Please enter some text or upload a file';
+        outputText.value = '';
         return;
     }
 
