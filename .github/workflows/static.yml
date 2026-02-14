@@ -31,6 +31,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Validate app script references are cache-busted
+        run: |
+          set -euo pipefail
+          ROOT_MATCH=$(rg -o 'app\.js\?v=[^"]+' index.html)
+          ENCODING_MATCH=$(rg -o '\.\./app\.js\?v=[^"]+' libs/encoding)
+          ROOT_VERSION=${ROOT_MATCH#app.js?v=}
+          ENCODING_VERSION=${ENCODING_MATCH#../app.js?v=}
+
+          if [ "${ROOT_VERSION}" != "${ENCODING_VERSION}" ]; then
+            echo "Script version mismatch between index.html and libs/encoding"
+            exit 1
+          fi
+
+          if rg -n 'script\.js' index.html libs/encoding; then
+            echo "Legacy script.js reference detected"
+            exit 1
+          fi
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

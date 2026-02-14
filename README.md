@@ -35,6 +35,11 @@ That's it!
 - Bootstrap 5 for styling
 - Local storage for theme preferences
 
+## 🧩 Cache-busting rule
+
+- `index.html` and `libs/encoding` must both load `app.js` with the same `?v=...` query.
+- Whenever `app.js` changes, bump the version string in both files.
+
 ## 🌐 Live Demo
 
 Check it out at: [encoding.sanjaysingh.net](https://encoding.sanjaysingh.net)
