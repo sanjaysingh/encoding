@@ -6,6 +6,7 @@ A simple web tool for encoding and decoding text in various formats. No fluff, j
 
 Convert text between different encoding formats:
 - **Base64** - encode/decode text or files
+- **Base62** - compact alphanumeric encoding for text
 - **URL encoding** - handle those pesky special characters in URLs
 - **XML entities** - convert special characters to XML-safe format
 

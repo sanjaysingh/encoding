@@ -1,3 +1,82 @@
+const BASE62_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const BASE62_BASE = 62n;
+const BASE256 = 256n;
+const base62CharMap = new Map(
+    [...BASE62_ALPHABET].map((char, index) => [char, BigInt(index)])
+);
+const utf8Encoder = new TextEncoder();
+const utf8Decoder = new TextDecoder('utf-8', { fatal: true });
+
+function encodeBase62(text) {
+    const bytes = utf8Encoder.encode(String(text));
+    if (bytes.length === 0) {
+        return '';
+    }
+
+    let leadingZeroCount = 0;
+    while (leadingZeroCount < bytes.length && bytes[leadingZeroCount] === 0) {
+        leadingZeroCount++;
+    }
+
+    if (leadingZeroCount === bytes.length) {
+        return BASE62_ALPHABET[0].repeat(leadingZeroCount);
+    }
+
+    let value = 0n;
+    for (let i = leadingZeroCount; i < bytes.length; i++) {
+        value = (value * BASE256) + BigInt(bytes[i]);
+    }
+
+    let encoded = '';
+    while (value > 0n) {
+        const remainder = Number(value % BASE62_BASE);
+        encoded = BASE62_ALPHABET[remainder] + encoded;
+        value /= BASE62_BASE;
+    }
+
+    return BASE62_ALPHABET[0].repeat(leadingZeroCount) + encoded;
+}
+
+function decodeBase62(text) {
+    const normalized = String(text);
+    if (!normalized) {
+        return '';
+    }
+
+    let leadingZeroCount = 0;
+    while (
+        leadingZeroCount < normalized.length &&
+        normalized[leadingZeroCount] === BASE62_ALPHABET[0]
+    ) {
+        leadingZeroCount++;
+    }
+
+    let value = 0n;
+    for (const char of normalized) {
+        const digit = base62CharMap.get(char);
+        if (digit === undefined) {
+            throw new Error('Invalid base62 encoded text');
+        }
+        value = (value * BASE62_BASE) + digit;
+    }
+
+    const decodedBytes = [];
+    while (value > 0n) {
+        decodedBytes.push(Number(value % BASE256));
+        value /= BASE256;
+    }
+    decodedBytes.reverse();
+
+    const totalBytes = new Uint8Array(leadingZeroCount + decodedBytes.length);
+    totalBytes.set(decodedBytes, leadingZeroCount);
+
+    try {
+        return utf8Decoder.decode(totalBytes);
+    } catch (_) {
+        throw new Error('Invalid base62 encoded text');
+    }
+}
+
 // Encoding/Decoding handlers
 const encoders = {
     base64: {
@@ -16,6 +95,16 @@ const encoders = {
             return btoa(input);
         },
         decode: (text) => atob(text)
+    },
+    base62: {
+        encode: async (input) => {
+            const content = input instanceof File ? await input.text() : input;
+            return encodeBase62(content);
+        },
+        decode: async (input) => {
+            const content = input instanceof File ? await input.text() : input;
+            return decodeBase62(content);
+        }
     },
     url: {
         encode: (text) => {
