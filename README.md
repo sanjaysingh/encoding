@@ -35,6 +35,13 @@ That's it!
 - Bootstrap 5 for styling
 - Local storage for theme preferences
 
+## 🧪 Testing
+
+- **Unit tests** (Vitest): `npm run test`
+- **E2E tests** (Playwright): `npm run test:e2e`
+
+CI runs both on every PR and push to `main`.
+
 ## 🧩 Cache-busting rule
 
 - `index.html` and `libs/encoding` must both load `app.js` with the same `?v=...` query.

@@ -1,83 +1,17 @@
-const BASE62_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-const BASE62_BASE = 62n;
-const BASE256 = 256n;
-const base62CharMap = new Map(
-    [...BASE62_ALPHABET].map((char, index) => [char, BigInt(index)])
-);
-const utf8Encoder = new TextEncoder();
-const utf8Decoder = new TextDecoder('utf-8', { fatal: true });
+import {
+    encodeBase62,
+    decodeBase62,
+    encodeBase64,
+    decodeBase64,
+    encodeUrl,
+    decodeUrl,
+    encodeXml,
+    decodeXml,
+    encodeJson,
+    decodeJson,
+} from './encoding.js';
 
-function encodeBase62(text) {
-    const bytes = utf8Encoder.encode(String(text));
-    if (bytes.length === 0) {
-        return '';
-    }
-
-    let leadingZeroCount = 0;
-    while (leadingZeroCount < bytes.length && bytes[leadingZeroCount] === 0) {
-        leadingZeroCount++;
-    }
-
-    if (leadingZeroCount === bytes.length) {
-        return BASE62_ALPHABET[0].repeat(leadingZeroCount);
-    }
-
-    let value = 0n;
-    for (let i = leadingZeroCount; i < bytes.length; i++) {
-        value = (value * BASE256) + BigInt(bytes[i]);
-    }
-
-    let encoded = '';
-    while (value > 0n) {
-        const remainder = Number(value % BASE62_BASE);
-        encoded = BASE62_ALPHABET[remainder] + encoded;
-        value /= BASE62_BASE;
-    }
-
-    return BASE62_ALPHABET[0].repeat(leadingZeroCount) + encoded;
-}
-
-function decodeBase62(text) {
-    const normalized = String(text);
-    if (!normalized) {
-        return '';
-    }
-
-    let leadingZeroCount = 0;
-    while (
-        leadingZeroCount < normalized.length &&
-        normalized[leadingZeroCount] === BASE62_ALPHABET[0]
-    ) {
-        leadingZeroCount++;
-    }
-
-    let value = 0n;
-    for (const char of normalized) {
-        const digit = base62CharMap.get(char);
-        if (digit === undefined) {
-            throw new Error('Invalid base62 encoded text');
-        }
-        value = (value * BASE62_BASE) + digit;
-    }
-
-    const decodedBytes = [];
-    while (value > 0n) {
-        decodedBytes.push(Number(value % BASE256));
-        value /= BASE256;
-    }
-    decodedBytes.reverse();
-
-    const totalBytes = new Uint8Array(leadingZeroCount + decodedBytes.length);
-    totalBytes.set(decodedBytes, leadingZeroCount);
-
-    try {
-        return utf8Decoder.decode(totalBytes);
-    } catch (_) {
-        throw new Error('Invalid base62 encoded text');
-    }
-}
-
-// Encoding/Decoding handlers
+// Encoding/Decoding handlers - uses pure functions from encoding.js, with File handling for base64
 const encoders = {
     base64: {
         encode: async (input) => {
@@ -92,9 +26,9 @@ const encoders = {
                     reader.readAsDataURL(input);
                 });
             }
-            return btoa(input);
+            return encodeBase64(input);
         },
-        decode: (text) => atob(text)
+        decode: (text) => decodeBase64(text)
     },
     base62: {
         encode: async (input) => {
@@ -107,291 +41,18 @@ const encoders = {
         }
     },
     url: {
-        encode: (text) => {
-            // Encode the text, preserving spaces as %20 instead of +
-            return encodeURIComponent(text).replace(/%20/g, ' ');
-        },
-        decode: (text) => {
-            try {
-                // Replace spaces with %20 before decoding to handle spaces correctly
-                return decodeURIComponent(text.replace(/ /g, '%20'));
-            } catch (error) {
-                throw new Error('Invalid URL encoded text');
-            }
-        }
+        encode: (text) => encodeUrl(text),
+        decode: (text) => decodeUrl(text)
     },
     xml: {
-        encode: (text) => {
-            // XML entity encoding map with more special characters
-            const xmlEntities = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&apos;',
-                '©': '&copy;',
-                '®': '&reg;',
-                '™': '&trade;',
-                '€': '&euro;',
-                '£': '&pound;',
-                '¢': '&cent;',
-                '¥': '&yen;',
-                '§': '&sect;',
-                '¶': '&para;',
-                '†': '&dagger;',
-                '‡': '&Dagger;',
-                '•': '&bull;',
-                '…': '&hellip;',
-                '–': '&ndash;',
-                '—': '&mdash;',
-                '′': '&prime;',
-                '″': '&Prime;',
-                '‹': '&lsaquo;',
-                '›': '&rsaquo;',
-                '«': '&laquo;',
-                '»': '&raquo;',
-                '←': '&larr;',
-                '→': '&rarr;',
-                '↑': '&uarr;',
-                '↓': '&darr;',
-                '↔': '&harr;',
-                '↵': '&crarr;',
-                '⌈': '&lceil;',
-                '⌉': '&rceil;',
-                '⌊': '&lfloor;',
-                '⌋': '&rfloor;',
-                '◊': '&loz;',
-                '♠': '&spades;',
-                '♣': '&clubs;',
-                '♥': '&hearts;',
-                '♦': '&diams;',
-                'α': '&alpha;',
-                'β': '&beta;',
-                'γ': '&gamma;',
-                'δ': '&delta;',
-                'ε': '&epsilon;',
-                'ζ': '&zeta;',
-                'η': '&eta;',
-                'θ': '&theta;',
-                'ι': '&iota;',
-                'κ': '&kappa;',
-                'λ': '&lambda;',
-                'μ': '&mu;',
-                'ν': '&nu;',
-                'ξ': '&xi;',
-                'ο': '&omicron;',
-                'π': '&pi;',
-                'ρ': '&rho;',
-                'ς': '&sigmaf;',
-                'σ': '&sigma;',
-                'τ': '&tau;',
-                'υ': '&upsilon;',
-                'φ': '&phi;',
-                'χ': '&chi;',
-                'ψ': '&psi;',
-                'ω': '&omega;',
-                'ϑ': '&thetasym;',
-                'ϒ': '&upsih;',
-                'ϖ': '&piv;',
-                '•': '&bull;',
-                '…': '&hellip;',
-                '′': '&prime;',
-                '″': '&Prime;',
-                '‾': '&oline;',
-                '⁄': '&frasl;',
-                '℘': '&weierp;',
-                'ℑ': '&image;',
-                'ℜ': '&real;',
-                '™': '&trade;',
-                'ℵ': '&alefsym;',
-                '&larr;': '←',
-                '&rarr;': '→',
-                '&uarr;': '↑',
-                '&darr;': '↓',
-                '&harr;': '↔',
-                '&crarr;': '↵',
-                '&lceil;': '⌈',
-                '&rceil;': '⌉',
-                '&lfloor;': '⌊',
-                '&rfloor;': '⌋',
-                '&loz;': '◊',
-                '&spades;': '♠',
-                '&clubs;': '♣',
-                '&hearts;': '♥',
-                '&diams;': '♦'
-            };
-
-            // Replace special characters with their XML entities
-            return text.replace(/[&<>"']|[^\x20-\x7E]/g, char => {
-                if (char === "'") return '&apos;';
-                return xmlEntities[char] || `&#${char.charCodeAt(0)};`;
-            });
-        },
-        decode: (text) => {
-            // XML entity decoding map with more special characters
-            const xmlEntities = {
-                '&amp;': '&',
-                '&lt;': '<',
-                '&gt;': '>',
-                '&quot;': '"',
-                '&apos;': "'",
-                '&copy;': '©',
-                '&reg;': '®',
-                '&trade;': '™',
-                '&euro;': '€',
-                '&pound;': '£',
-                '&cent;': '¢',
-                '&yen;': '¥',
-                '&sect;': '§',
-                '&para;': '¶',
-                '&dagger;': '†',
-                '&Dagger;': '‡',
-                '&bull;': '•',
-                '&hellip;': '…',
-                '&ndash;': '–',
-                '&mdash;': '—',
-                '&prime;': '′',
-                '&Prime;': '″',
-                '&lsaquo;': '‹',
-                '&rsaquo;': '›',
-                '&laquo;': '«',
-                '&raquo;': '»',
-                '&larr;': '←',
-                '&rarr;': '→',
-                '&uarr;': '↑',
-                '&darr;': '↓',
-                '&harr;': '↔',
-                '&crarr;': '↵',
-                '&lceil;': '⌈',
-                '&rceil;': '⌉',
-                '&lfloor;': '⌊',
-                '&rfloor;': '⌋',
-                '&loz;': '◊',
-                '&spades;': '♠',
-                '&clubs;': '♣',
-                '&hearts;': '♥',
-                '&diams;': '♦',
-                '&alpha;': 'α',
-                '&beta;': 'β',
-                '&gamma;': 'γ',
-                '&delta;': 'δ',
-                '&epsilon;': 'ε',
-                '&zeta;': 'ζ',
-                '&eta;': 'η',
-                '&theta;': 'θ',
-                '&iota;': 'ι',
-                '&kappa;': 'κ',
-                '&lambda;': 'λ',
-                '&mu;': 'μ',
-                '&nu;': 'ν',
-                '&xi;': 'ξ',
-                '&omicron;': 'ο',
-                '&pi;': 'π',
-                '&rho;': 'ρ',
-                '&sigmaf;': 'ς',
-                '&sigma;': 'σ',
-                '&tau;': 'τ',
-                '&upsilon;': 'υ',
-                '&phi;': 'φ',
-                '&chi;': 'χ',
-                '&psi;': 'ψ',
-                '&omega;': 'ω',
-                '&thetasym;': 'ϑ',
-                '&upsih;': 'ϒ',
-                '&piv;': 'ϖ',
-                '&bull;': '•',
-                '&hellip;': '…',
-                '&prime;': '′',
-                '&Prime;': '″',
-                '&oline;': '‾',
-                '&frasl;': '⁄',
-                '&weierp;': '℘',
-                '&image;': 'ℑ',
-                '&real;': 'ℜ',
-                '&trade;': '™',
-                '&alefsym;': 'ℵ',
-                '&larr;': '←',
-                '&rarr;': '→',
-                '&uarr;': '↑',
-                '&darr;': '↓',
-                '&harr;': '↔',
-                '&crarr;': '↵',
-                '&lceil;': '⌈',
-                '&rceil;': '⌉',
-                '&lfloor;': '⌊',
-                '&rfloor;': '⌋',
-                '&loz;': '◊',
-                '&spades;': '♠',
-                '&clubs;': '♣',
-                '&hearts;': '♥',
-                '&diams;': '♦'
-            };
-
-            // First replace named entities
-            let decoded = text.replace(/&(amp|lt|gt|quot|apos|[a-zA-Z]+);/g, entity => xmlEntities[entity] || entity);
-            
-            // Then replace numeric entities
-            return decoded.replace(/&#(\d+);/g, (match, dec) => xmlEntities[match] || String.fromCharCode(dec));
-        }
+        encode: (text) => encodeXml(text),
+        decode: (text) => decodeXml(text)
     },
     json: {
-        encode: (text) => {
-            // Escape as JSON string and strip the surrounding quotes
-            const escaped = JSON.stringify(String(text));
-            return escaped.substring(1, escaped.length - 1);
-        },
-        decode: (text) => {
-            const raw = String(text).trim();
-            // Try to interpret as an escaped JSON string first
-            try {
-                const candidate = (raw.startsWith('"') && raw.endsWith('"')) ? raw : `"${raw}"`;
-                return JSON.parse(candidate);
-            } catch (_) {
-                // If it's a full JSON (object/array/number/etc), pretty print it
-                try {
-                    const obj = JSON.parse(raw);
-                    return typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
-                } catch (error) {
-                    throw new Error('Invalid JSON encoded text');
-                }
-            }
-        }
+        encode: (text) => encodeJson(text),
+        decode: (text) => decodeJson(text)
     }
 };
-
-// Helper function to format XML with proper indentation
-function formatXML(node, level = 0) {
-    const indent = '  '.repeat(level);
-    let formatted = '';
-    
-    if (node.nodeType === Node.ELEMENT_NODE) {
-        formatted += indent + '<' + node.tagName;
-        
-        // Add attributes
-        for (const attr of node.attributes) {
-            formatted += ' ' + attr.name + '="' + attr.value + '"';
-        }
-        
-        if (node.childNodes.length === 0) {
-            formatted += '/>\n';
-        } else {
-            formatted += '>\n';
-            
-            // Process child nodes
-            for (const child of node.childNodes) {
-                if (child.nodeType === Node.TEXT_NODE && child.textContent.trim()) {
-                    formatted += indent + '  ' + child.textContent.trim() + '\n';
-                } else if (child.nodeType === Node.ELEMENT_NODE) {
-                    formatted += formatXML(child, level + 1);
-                }
-            }
-            
-            formatted += indent + '</' + node.tagName + '>\n';
-        }
-    }
-    
-    return formatted;
-}
 
 // DOM Elements
 const themeToggle = document.getElementById('themeToggle');
@@ -577,4 +238,4 @@ downloadBtn.addEventListener('click', () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-}); 
+});
