@@ -38,7 +38,7 @@ function encodeBase62(text) {
 }
 
 function decodeBase62(text) {
-    const normalized = String(text);
+    const normalized = String(text).trim();
     if (!normalized) {
         return '';
     }
