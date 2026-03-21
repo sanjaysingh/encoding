@@ -15,9 +15,9 @@
             document.documentElement.setAttribute('data-theme', savedTheme);
         })();
     </script>
-    <link rel="stylesheet" href="libs/bootstrap-5.3.3-css-bootstrap.min.css">
-    <link rel="stylesheet" href="libs/bootstrap-icons-1.11.3-font-bootstrap-icons.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="libs/bootstrap-5.3.3-css-bootstrap.min.css?v={{COMMIT_SHA}}">
+    <link rel="stylesheet" href="libs/bootstrap-icons-1.11.3-font-bootstrap-icons.min.css?v={{COMMIT_SHA}}">
+    <link rel="stylesheet" href="styles.css?v={{COMMIT_SHA}}">
 </head>
 <body>
     <div class="notification" id="notification" role="alert" aria-live="polite"></div>
@@ -97,8 +97,8 @@
     <footer class="container py-3 text-center">
     </footer>
 
-    <script src="libs/bootstrap-5.3.3-js-bootstrap.min.js"></script>
-    <script type="module" src="app.js?v=20260321"></script>
+    <script src="libs/bootstrap-5.3.3-js-bootstrap.min.js?v={{COMMIT_SHA}}"></script>
+    <script type="module" src="app.js?v={{COMMIT_SHA}}"></script>
 </body>
 </html>
 

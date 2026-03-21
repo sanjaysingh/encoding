@@ -15,7 +15,7 @@ import {
     decodeHex,
     encodeBase32,
     decodeBase32,
-} from './encoding.js';
+} from './encoding.js?v={{COMMIT_SHA}}';
 
 // Encoding/Decoding handlers - uses pure functions from encoding.js, with File handling for base64
 const encoders = {
