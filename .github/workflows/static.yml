@@ -31,33 +31,51 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Validate app script references are cache-busted
+
+      - name: Inject commit SHA into version placeholders
         run: |
-          set -euo pipefail
-          ROOT_VERSION=$(sed -n 's/.*src="app\.js?v=\([^"]*\)".*/\1/p' index.html)
-          ENCODING_VERSION=$(sed -n 's/.*src="\.\.\/app\.js?v=\([^"]*\)".*/\1/p' libs/encoding)
+          COMMIT_SHA="${{ github.sha }}"
+          SHORT_SHA="${COMMIT_SHA:0:7}"
 
-          if [ -z "${ROOT_VERSION}" ] || [ -z "${ENCODING_VERSION}" ]; then
-            echo "Missing versioned app.js reference in index.html or libs/encoding"
+          echo "Injecting commit SHA: ${SHORT_SHA}"
+
+          # Replace placeholders in index.html
+          sed -i "s/{{COMMIT_SHA}}/${SHORT_SHA}/g" index.html
+
+          # Replace placeholders in app.js
+          sed -i "s/{{COMMIT_SHA}}/${SHORT_SHA}/g" app.js
+
+          # Verify replacements
+          echo "=== index.html version references ==="
+          grep -o 'v=[a-f0-9]*' index.html | head -5
+
+          echo "=== app.js version references ==="
+          grep -o 'v=[a-f0-9]*' app.js | head -2
+
+      - name: Validate version injection
+        run: |
+          # Check that placeholders were replaced
+          if grep -q '{{COMMIT_SHA}}' index.html; then
+            echo "ERROR: Unreplaced placeholder found in index.html"
             exit 1
           fi
 
-          if [ "${ROOT_VERSION}" != "${ENCODING_VERSION}" ]; then
-            echo "Script version mismatch between index.html and libs/encoding"
+          if grep -q '{{COMMIT_SHA}}' app.js; then
+            echo "ERROR: Unreplaced placeholder found in app.js"
             exit 1
           fi
 
-          if grep -n 'script\.js' index.html libs/encoding; then
-            echo "Legacy script.js reference detected"
-            exit 1
-          fi
+          echo "Version injection validated successfully"
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
           path: '.'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
