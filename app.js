@@ -9,6 +9,12 @@ import {
     decodeXml,
     encodeJson,
     decodeJson,
+    encodeHtml,
+    decodeHtml,
+    encodeHex,
+    decodeHex,
+    encodeBase32,
+    decodeBase32,
 } from './encoding.js';
 
 // Encoding/Decoding handlers - uses pure functions from encoding.js, with File handling for base64
@@ -51,6 +57,24 @@ const encoders = {
     json: {
         encode: (text) => encodeJson(text),
         decode: (text) => decodeJson(text)
+    },
+    html: {
+        encode: (text) => encodeHtml(text),
+        decode: (text) => decodeHtml(text)
+    },
+    hex: {
+        encode: (text) => encodeHex(text),
+        decode: (text) => decodeHex(text)
+    },
+    base32: {
+        encode: async (input) => {
+            const content = input instanceof File ? await input.text() : input;
+            return encodeBase32(content);
+        },
+        decode: async (input) => {
+            const content = input instanceof File ? await input.text() : input;
+            return decodeBase32(content);
+        }
     }
 };
 
