@@ -416,19 +416,43 @@ els.clearBtn.addEventListener('click', () => {
     });
 });
 
+async function copyText(text) {
+    if (navigator.clipboard?.writeText) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch {
+            // Fall back to a hidden textarea for non-secure or restricted contexts.
+        }
+    }
+
+    const probe = document.createElement('textarea');
+    probe.value = text;
+    probe.setAttribute('readonly', '');
+    probe.style.position = 'fixed';
+    probe.style.left = '-9999px';
+    document.body.appendChild(probe);
+    probe.select();
+    const copied = document.execCommand('copy');
+    document.body.removeChild(probe);
+    return copied;
+}
+
 els.copyBtn.addEventListener('click', async () => {
     const { output, error } = store.get();
     if (!output || error) {
         return;
     }
-    try {
-        await navigator.clipboard.writeText(output);
-        window.clearTimeout(copyTimer);
-        setState({ copied: true });
-        copyTimer = window.setTimeout(() => setState({ copied: false }), 2000);
-    } catch {
+
+    const copied = await copyText(output);
+    if (!copied) {
         notify('Could not copy to clipboard', 'error');
+        return;
     }
+
+    window.clearTimeout(copyTimer);
+    setState({ copied: true });
+    copyTimer = window.setTimeout(() => setState({ copied: false }), 2000);
 });
 
 els.downloadBtn.addEventListener('click', () => {
