@@ -41,6 +41,7 @@ jobs:
           # Replace placeholders in all relevant files
           sed -i "s/{{COMMIT_SHA}}/${SHORT_SHA}/g" index.html
           sed -i "s/{{COMMIT_SHA}}/${SHORT_SHA}/g" app.js
+          sed -i "s/{{COMMIT_SHA}}/${SHORT_SHA}/g" libs/encoding
 
           # Verify replacements
           echo "=== index.html version references ==="
@@ -59,6 +60,11 @@ jobs:
 
           if grep -q '{{COMMIT_SHA}}' app.js; then
             echo "ERROR: Unreplaced placeholder found in app.js"
+            exit 1
+          fi
+
+          if grep -q '{{COMMIT_SHA}}' libs/encoding; then
+            echo "ERROR: Unreplaced placeholder found in libs/encoding"
             exit 1
           fi
 

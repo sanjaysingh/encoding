@@ -1,56 +1,51 @@
-# 🔄 Encoding/Decoding Tool
+# Encode
 
-A simple web tool for encoding and decoding text in various formats. No fluff, just gets the job done.
+A small browser tool for encoding and decoding text. No accounts, no uploads, no extra libraries in the page.
 
-## ✨ What it does
+## What it does
 
-Convert text between different encoding formats:
-- **Base64** - encode/decode text or files
-- **Base62** - compact alphanumeric encoding for text
-- **URL encoding** - handle those pesky special characters in URLs
-- **XML entities** - convert special characters to XML-safe format
+Convert text between common formats:
 
-## 🚀 Features
+- **Base64** — encode or decode text and files
+- **Base32** — RFC 4648-style alphanumeric encoding
+- **Base62** — compact letters-and-numbers encoding
+- **Hexadecimal** — UTF-8 bytes as hex
+- **HTML / XML entities** — named and numeric entities
+- **URL** — percent-encoding for query values
+- **JSON** — escape or unescape JSON string content
 
-- **Dark/Light theme** - because your eyes matter
-- **File upload** - drag & drop files for Base64 encoding
-- **Real-time conversion** - see results as you type
-- **Copy to clipboard** - one-click copying
-- **URL sharing** - share encoded text via URL parameters
-- **No data collection** - everything happens in your browser
+## Features
 
-## 💡 Usage
+- Dark and light themes, remembered locally
+- Real-time conversion as you type
+- File input, including drag and drop
+- Copy, download, swap, and clear
+- Shareable `type` and `mode` URL parameters
+- Runs entirely in the browser
 
-1. Open `index.html` in your browser
-2. Pick your encoding format from the dropdown
-3. Type or paste your text (or upload a file for Base64)
-4. Hit encode/decode
-5. Copy the result
+## Usage
 
-That's it! 
+1. Open `index.html` in a browser
+2. Choose a format and Encode or Decode
+3. Type, paste, or drop a file
+4. Copy or download the result
 
-## 🛠️ Tech Stack
+## Tech
 
-- Vanilla JavaScript (no fancy frameworks needed)
-- Bootstrap 5 for styling
-- Local storage for theme preferences
+Vanilla HTML, CSS, and JavaScript. Theme and last-used format live in `localStorage`.
 
-## 🧪 Testing
+## Testing
 
 - **Unit tests** (Vitest): `npm run test`
 - **E2E tests** (Playwright): `npm run test:e2e`
 
 CI runs both on every PR and push to `main`.
 
-## 🧩 Cache-busting rule
+## Cache-busting rule
 
 - `index.html` and `libs/encoding` must both load `app.js` with the same `?v=...` query.
 - Whenever `app.js` changes, bump the version string in both files.
 
-## 🌐 Live Demo
+## Live demo
 
-Check it out at: [encoding.sanjaysingh.net](https://encoding.sanjaysingh.net)
-
----
-
-*Simple tools for simple tasks* ⚡
+[encoding.sanjaysingh.net](https://encoding.sanjaysingh.net)
