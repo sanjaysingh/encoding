@@ -44,7 +44,13 @@ const encoders = {
             }
             return encodeBase64(input);
         },
-        decode: (text) => decodeBase64(text),
+        decode: (text) => {
+            try {
+                return decodeBase64(text);
+            } catch {
+                throw new Error('Invalid Base64 encoded text');
+            }
+        },
     },
     base62: {
         encode: async (input) => encodeBase62(await readText(input)),

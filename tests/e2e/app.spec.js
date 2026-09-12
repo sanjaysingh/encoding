@@ -76,6 +76,17 @@ test.describe('Encoding Tool', () => {
         await expect(page.getByLabel('Input text')).toBeVisible();
     });
 
+    test('encodes an uploaded text file', async ({ page }) => {
+        await page.getByRole('tab', { name: 'File' }).click();
+        await page.getByLabel('Upload file').setInputFiles({
+            name: 'hello.txt',
+            mimeType: 'text/plain',
+            buffer: Buffer.from('hello'),
+        });
+        await expect(page.getByLabel('Output text')).toHaveValue('aGVsbG8=');
+        await expect(page.locator('#fileName')).toHaveText('hello.txt');
+    });
+
     test('theme toggle works', async ({ page }) => {
         const html = page.locator('html');
         const initialTheme = await html.getAttribute('data-theme');
