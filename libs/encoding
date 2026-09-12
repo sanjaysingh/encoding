@@ -3,382 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Free online tool for encoding and decoding text in various formats including Base64, Base62, URL, and XML. Convert your text easily with real-time preview.">
-    <meta name="keywords" content="encode, decode, base64, base62, url, xml, text converter, online tools">
+    <meta name="description" content="Free online tool for encoding and decoding text in various formats including Base64, Base62, URL, JSON, and XML. Convert your text easily with real-time preview.">
+    <meta name="keywords" content="encode, decode, base64, base62, url, json, xml, text converter, online tools">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://static.sanjaysingh.net/encoding">
-    <title>Encoding and Decoding Tool</title>
+    <meta name="color-scheme" content="dark light">
+    <meta name="theme-color" content="#0b0d10">
+    <base href="../">
+    <link rel="canonical" href="https://encoding.sanjaysingh.net">
+    <title>Encode — Text Encoding and Decoding</title>
     <script>
-        // Set theme before page renders to prevent flash
-        (function() {
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme');
+                var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
         })();
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" integrity="sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" integrity="sha512-dPXYcDub/aeb08c63jRq/k6GaKccl256JQy/AnOq7CAnEZ9FzSL9wSbcZkMp4R26vBsMLFYH4kQ67/bbV8XaCQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        :root {
-            --bg-color: #ffffff;
-            --text-color: #333333;
-            --card-bg: #f8f9fa;
-            --border-color: #dee2e6;
-            --card-title-color: #333333;
-            --form-label-color: #333333;
-            --topbar-bg: #f8f9fa;
-            --topbar-border: #dee2e6;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #212529;
-            --text-color: #f8f9fa;
-            --card-bg: #343a40;
-            --border-color: #495057;
-            --card-title-color: #f8f9fa;
-            --form-label-color: #f8f9fa;
-            --topbar-bg: #343a40;
-            --topbar-border: #495057;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: all 0.3s ease;
-        }
-
-        .topbar {
-            background-color: var(--topbar-bg);
-            border-bottom: 1px solid var(--topbar-border);
-            padding: 0.7rem 0;
-            margin-bottom: 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .topbar-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .topbar-title {
-            margin: 0;
-            font-size: 1.25rem;
-            color: var(--text-color);
-        }
-
-        .theme-switch {
-            position: static;
-        }
-
-        .theme-switch .btn-outline-primary {
-            color: var(--text-color);
-            border-color: var(--border-color);
-            background-color: var(--bg-color);
-        }
-
-        .theme-switch .btn-outline-primary:hover {
-            background-color: var(--border-color);
-            color: var(--bg-color);
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border-color: var(--border-color);
-        }
-
-        .card-title {
-            color: var(--card-title-color);
-        }
-
-        .form-control, .form-select {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            border-color: var(--border-color);
-        }
-
-        .form-control:focus, .form-select:focus {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            border-color: #0d6efd;
-        }
-
-        .form-check-label {
-            color: var(--form-label-color);
-        }
-
-        .form-select option {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-
-        .btn-outline-secondary {
-            color: var(--text-color);
-            border-color: var(--border-color);
-        }
-
-        .btn-outline-secondary:hover {
-            background-color: var(--border-color);
-            color: var(--bg-color);
-        }
-
-        .input-tabs {
-            display: flex;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 1rem;
-            gap: 0.5rem;
-        }
-
-        .input-tab {
-            padding: 0.75rem 1.5rem;
-            cursor: pointer;
-            border: none;
-            background: none;
-            color: var(--text-color);
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-            position: relative;
-            min-width: 100px;
-            text-align: center;
-            opacity: 0.7;
-        }
-
-        .input-tab:hover {
-            color: #0d6efd;
-            opacity: 1;
-        }
-
-        .input-tab.active {
-            color: #0d6efd;
-            opacity: 1;
-        }
-
-        .input-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background-color: #0d6efd;
-            border-radius: 2px;
-        }
-
-        [data-theme="dark"] .input-tab {
-            color: var(--text-color);
-        }
-
-        [data-theme="dark"] .input-tab:hover {
-            color: #0d6efd;
-        }
-
-        [data-theme="dark"] .input-tab.active {
-            color: #0d6efd;
-        }
-
-        .output-container {
-            position: relative;
-        }
-
-        .copy-btn {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            transition: all 0.2s ease;
-        }
-
-        .copy-btn.success {
-            background-color: #198754;
-            border-color: #198754;
-            color: white;
-        }
-
-        .copy-btn.success:hover {
-            background-color: #157347;
-            border-color: #157347;
-            color: white;
-        }
-
-        .controls {
-            background-color: var(--card-bg);
-            padding: 1.25rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .controls .form-select {
-            margin-left: 0;
-            width: 200px;
-        }
-
-        .card-body {
-            padding: 1.25rem;
-        }
-
-        .operation-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .operation-buttons .form-check {
-            margin-right: 0;
-        }
-
-        .notification {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            min-width: 200px;
-            justify-content: center;
-        }
-
-        .notification.show {
-            opacity: 1;
-        }
-
-        .notification.error {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .notification.success {
-            background-color: #198754;
-            color: white;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-            .topbar {
-                padding: 0.5rem 0;
-                margin-bottom: 1.5rem;
-            }
-            .topbar-title {
-                font-size: 1.1rem;
-            }
-            .controls {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-                padding: 1.25rem;
-            }
-            .controls .form-select {
-                width: 100%;
-                max-width: 200px;
-            }
-            .operation-buttons {
-                width: 100%;
-                justify-content: flex-start;
-            }
-            .notification {
-                bottom: 1rem;
-                left: 1rem;
-                right: 1rem;
-                transform: none;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css?v={{COMMIT_SHA}}">
 </head>
 <body>
-    <div class="notification" id="notification" role="alert" aria-live="polite"></div>
+    <div class="notification" id="notification" role="status" aria-live="polite"></div>
+
     <header class="topbar">
-        <div class="container">
-            <div class="topbar-content">
-                <h1 class="topbar-title">Text Encoding and Decoding</h1>
-                <div class="theme-switch">
-                    <button class="btn btn-outline-primary" id="themeToggle" aria-label="Toggle dark mode">
-                        <i class="bi bi-moon-stars"></i>
-                    </button>
+        <div class="shell topbar-content">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M8 7 3 12l5 5M16 7l5 5-5 5M14 4l-4 16" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <div class="brand-copy">
+                    <h1 class="topbar-title">Encode</h1>
+                    <p class="brand-lede">Text encoding and decoding</p>
                 </div>
             </div>
+            <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle dark mode">
+                <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 7 7 0 0 0 20 14.5z" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <circle cx="12" cy="12" r="4"/>
+                    <path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" stroke-linecap="round"/>
+                </svg>
+            </button>
         </div>
     </header>
-    <main class="container py-4">
-        <div class="controls" role="toolbar" aria-label="Encoding controls">
-            <select class="form-select" id="encodingType" aria-label="Select encoding type">
-                <option value="base64">Base64</option>
-                <option value="base32">Base32</option>
-                <option value="base62">Base62</option>
-                <option value="hex">Hexadecimal</option>
-                <option value="html">HTML Entities</option>
-                <option value="xml">XML Entities</option>
-                <option value="url">URL</option>
-                <option value="json">JSON</option>
-            </select>
-            <div class="operation-buttons" role="radiogroup" aria-label="Operation type">
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="operation" id="encodeRadio" value="encode" checked aria-label="Encode text">
-                    <label class="form-check-label" for="encodeRadio">Encode</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="operation" id="decodeRadio" value="decode" aria-label="Decode text">
-                    <label class="form-check-label" for="decodeRadio">Decode</label>
+
+    <main class="shell">
+        <section class="controls" role="toolbar" aria-label="Encoding controls">
+            <label class="field">
+                <span class="field-label">Format</span>
+                <select id="encodingType" aria-label="Select encoding type">
+                    <option value="base64">Base64</option>
+                    <option value="base32">Base32</option>
+                    <option value="base62">Base62</option>
+                    <option value="hex">Hexadecimal</option>
+                    <option value="html">HTML Entities</option>
+                    <option value="xml">XML Entities</option>
+                    <option value="url">URL</option>
+                    <option value="json">JSON</option>
+                </select>
+            </label>
+
+            <div class="field">
+                <span class="field-label">Mode</span>
+                <div class="segmented" role="radiogroup" aria-label="Operation type">
+                    <label class="segment">
+                        <input type="radio" name="operation" id="encodeRadio" value="encode" checked aria-label="Encode text">
+                        <span>Encode</span>
+                    </label>
+                    <label class="segment">
+                        <input type="radio" name="operation" id="decodeRadio" value="decode" aria-label="Decode text">
+                        <span>Decode</span>
+                    </label>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-12">
-                <section class="card mb-4">
-                    <div class="card-body">
-                        <h2 class="card-title">Input</h2>
-                        <div class="input-tabs" role="tablist">
-                            <button class="input-tab active" id="textTab" role="tab" aria-selected="true" aria-controls="textInputContainer">Text</button>
-                            <button class="input-tab" id="fileTab" role="tab" aria-selected="false" aria-controls="fileInputContainer">File</button>
-                        </div>
-                        <div id="textInputContainer" role="tabpanel" aria-labelledby="textTab">
-                            <textarea class="form-control" id="inputText" rows="6" placeholder="Enter text to encode/decode" aria-label="Input text"></textarea>
-                        </div>
-                        <div id="fileInputContainer" role="tabpanel" aria-labelledby="fileTab" style="display: none;">
-                            <input type="file" class="form-control" id="inputFile" aria-label="Upload file">
-                        </div>
-                    </div>
-                </section>
+            <p class="format-hint" id="formatHint"></p>
 
-                <section class="card">
-                    <div class="card-body">
-                        <h2 class="card-title">Output</h2>
-                        <div class="output-container">
-                            <textarea class="form-control" id="outputText" rows="6" readonly aria-label="Output text"></textarea>
-                            <button class="btn btn-sm btn-outline-secondary copy-btn" id="copyBtn" aria-label="Copy to clipboard">
-                                <i class="bi bi-clipboard"></i>
-                            </button>
-                        </div>
-                        <div class="mt-3">
-                            <button class="btn btn-primary" id="downloadBtn" aria-label="Download output">
-                                <i class="bi bi-download"></i> Download
-                            </button>
-                        </div>
-                    </div>
-                </section>
+            <div class="toolbar-actions">
+                <button class="btn btn-ghost" id="swapBtn" type="button" aria-label="Swap input and output">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path d="M7 8h13M7 8l3-3M7 8l3 3M17 16H4M17 16l-3-3M17 16l-3 3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Swap
+                </button>
+                <button class="btn btn-ghost" id="clearBtn" type="button" aria-label="Clear input and output">
+                    Clear
+                </button>
             </div>
+        </section>
+
+        <div class="workspace">
+            <section class="panel">
+                <div class="panel-head">
+                    <h2>Input</h2>
+                    <div class="input-tabs" role="tablist" aria-label="Input source">
+                        <button class="input-tab active" id="textTab" type="button" role="tab" aria-selected="true" aria-controls="textInputContainer">Text</button>
+                        <button class="input-tab" id="fileTab" type="button" role="tab" aria-selected="false" aria-controls="fileInputContainer">File</button>
+                    </div>
+                </div>
+                <div id="textInputContainer" role="tabpanel" aria-labelledby="textTab">
+                    <textarea id="inputText" rows="10" placeholder="Enter text to encode or decode" aria-label="Input text" spellcheck="false" autocomplete="off"></textarea>
+                </div>
+                <div id="fileInputContainer" role="tabpanel" aria-labelledby="fileTab" hidden>
+                    <label class="dropzone" id="dropzone">
+                        <span class="dropzone-title" id="fileName">Drop a file or click to browse</span>
+                        <span class="dropzone-hint">Processed locally in your browser</span>
+                        <input type="file" id="inputFile" aria-label="Upload file">
+                    </label>
+                </div>
+                <div class="panel-meta" id="inputMeta" hidden></div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <h2>Output</h2>
+                    <div class="panel-actions">
+                        <button class="icon-btn copy-btn" id="copyBtn" type="button" aria-label="Copy to clipboard" disabled>
+                            <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                <rect x="9" y="9" width="11" height="11" rx="2"/>
+                                <path d="M5 15V5a2 2 0 0 1 2-2h10" stroke-linecap="round"/>
+                            </svg>
+                            <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                <path d="M5 12.5 9.5 17 19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <button class="btn btn-primary" id="downloadBtn" type="button" aria-label="Download output" disabled>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                <path d="M12 4v12M7 11l5 5 5-5M5 20h14" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Download
+                        </button>
+                    </div>
+                </div>
+                <textarea id="outputText" rows="10" readonly aria-label="Output text" spellcheck="false" placeholder="Result appears here"></textarea>
+                <div class="panel-meta" id="outputMeta" hidden></div>
+            </section>
         </div>
     </main>
-    <footer class="container py-3 text-center">
-        <p>Free online tool for encoding and decoding text. Supports Base64, Base32, Base62, Hex, HTML, XML, URL, and JSON formats.</p>
+
+    <footer class="shell site-footer">
+        <p>Everything runs in your browser. Nothing is uploaded.</p>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js" integrity="sha512-ykZ1QQr0Jy/4ZkvKuqWn4iF3lqPZyij9iRv6sGqLRdTPkY69YX6+7wvVGmsdBbiIfN/8OdsI7HABjvEok6ZopQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script type="module" src="../app.js?v=20260321"></script>
+    <script type="module" src="app.js?v={{COMMIT_SHA}}"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@ test.describe('Encoding Tool', () => {
     });
 
     test('loads and displays main UI', async ({ page }) => {
-        await expect(page.getByRole('heading', { name: 'Text Encoding and Decoding' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Encode' })).toBeVisible();
         await expect(page.getByLabel('Select encoding type')).toBeVisible();
         await expect(page.getByLabel('Input text')).toBeVisible();
         await expect(page.getByLabel('Output text')).toBeVisible();
@@ -76,6 +76,17 @@ test.describe('Encoding Tool', () => {
         await expect(page.getByLabel('Input text')).toBeVisible();
     });
 
+    test('encodes an uploaded text file', async ({ page }) => {
+        await page.getByRole('tab', { name: 'File' }).click();
+        await page.getByLabel('Upload file').setInputFiles({
+            name: 'hello.txt',
+            mimeType: 'text/plain',
+            buffer: Buffer.from('hello'),
+        });
+        await expect(page.getByLabel('Output text')).toHaveValue('aGVsbG8=');
+        await expect(page.locator('#fileName')).toHaveText('hello.txt');
+    });
+
     test('theme toggle works', async ({ page }) => {
         const html = page.locator('html');
         const initialTheme = await html.getAttribute('data-theme');
@@ -132,12 +143,23 @@ test.describe('Encoding Tool', () => {
         await page.getByLabel('Input text').fill('');
         await expect(page.getByLabel('Output text')).toHaveValue('');
     });
+
+    test('swap moves output to input and flips mode', async ({ page }) => {
+        await page.getByLabel('Select encoding type').selectOption('base64');
+        await page.getByLabel('Input text').fill('hello');
+        await expect(page.getByLabel('Output text')).toHaveValue('aGVsbG8=');
+
+        await page.getByLabel('Swap input and output').click();
+        await expect(page.getByLabel('Decode text')).toBeChecked();
+        await expect(page.getByLabel('Input text')).toHaveValue('aGVsbG8=');
+        await expect(page.getByLabel('Output text')).toHaveValue('hello');
+    });
 });
 
 test.describe('libs/encoding entry point', () => {
     test('loads encoding page', async ({ page }) => {
         await page.goto('/libs/encoding');
-        await expect(page.getByRole('heading', { name: 'Text Encoding and Decoding' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Encode' })).toBeVisible();
     });
 
     test('encoding works from libs/encoding path', async ({ page }) => {
