@@ -401,6 +401,11 @@ textarea[readonly] {
     font-size: 0.78rem;
 }
 
+.panel-meta:empty,
+.panel-meta[hidden] {
+    display: none;
+}
+
 .dropzone {
     position: relative;
     display: grid;

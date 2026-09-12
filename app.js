@@ -127,11 +127,16 @@ function createStore(initial) {
 
 function formatCount(text) {
     if (!text) {
-        return 'Empty';
+        return '';
     }
     const characters = [...text].length;
     const bytes = new TextEncoder().encode(text).length;
     return `${characters.toLocaleString()} characters · ${bytes.toLocaleString()} bytes`;
+}
+
+function setMeta(el, text) {
+    el.textContent = text;
+    el.hidden = !text;
 }
 
 const params = new URLSearchParams(window.location.search);
@@ -288,14 +293,14 @@ function render(state) {
     }
 
     if (state.source === 'file' && state.file) {
-        els.inputMeta.textContent = `${state.file.name} · ${state.file.size.toLocaleString()} bytes`;
+        setMeta(els.inputMeta, `${state.file.name} · ${state.file.size.toLocaleString()} bytes`);
         els.fileName.textContent = state.file.name;
     } else {
-        els.inputMeta.textContent = formatCount(state.input);
+        setMeta(els.inputMeta, formatCount(state.input));
         els.fileName.textContent = 'Drop a file or click to browse';
     }
 
-    els.outputMeta.textContent = state.error ? state.error : formatCount(state.output);
+    setMeta(els.outputMeta, state.error ? state.error : formatCount(state.output));
     els.copyBtn.disabled = !state.output || Boolean(state.error);
     els.downloadBtn.disabled = !state.output || Boolean(state.error);
     els.copyBtn.classList.toggle('success', state.copied);
